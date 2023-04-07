@@ -4,7 +4,7 @@ import { ProductCategory } from '../product-categories/product-category';
 
 import { Product } from './product';
 import { ProductService } from './product.service';
-import { EMPTY, Observable, Subject, catchError, combineLatest, filter, map, of } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, Subject, catchError, combineLatest, filter, map, of, startWith } from 'rxjs';
 import { ProductCategoryService } from '../product-categories/product-category.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class ProductListComponent {
   errorMessage = '';
   //categories: ProductCategory[] = [];
   //selectedCategoryId = 1;
-  private categorySelectedSubject = new Subject<number>();
+  private categorySelectedSubject = new BehaviorSubject<number>(0);
   categoryselectedAction$ = this.categorySelectedSubject.asObservable();
 
   //products$: Observable<Product[]> | undefined;
@@ -32,6 +32,9 @@ export class ProductListComponent {
   products$ = combineLatest([
     this.productService.productsWithCategory$,
     this.categoryselectedAction$
+      /*.pipe(
+        startWith(0)
+      ) we can use startWith initial value or BehaviorSubject*/
   ])
     .pipe(
       map(([products, selectedCategoryId]) =>
@@ -84,3 +87,9 @@ export class ProductListComponent {
     this.categorySelectedSubject.next(+categoryId); //+ sign convert string to number
   }
 }
+
+/*
+use Subject ıf you dont need an initial value
+use BehaviorSubject if you want initial value
+  -important when using cobineLatest  (wont emit until each of its input stream emit.)
+*/

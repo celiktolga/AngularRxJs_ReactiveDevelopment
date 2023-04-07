@@ -4,7 +4,8 @@ import { ProductCategory } from '../product-categories/product-category';
 
 import { Product } from './product';
 import { ProductService } from './product.service';
-import { EMPTY, Observable, catchError, of } from 'rxjs';
+import { EMPTY, Observable, catchError, filter, map, of } from 'rxjs';
+import { ProductCategoryService } from '../product-categories/product-category.service';
 
 @Component({
   templateUrl: './product-list.component.html',
@@ -14,7 +15,8 @@ import { EMPTY, Observable, catchError, of } from 'rxjs';
 export class ProductListComponent {
   pageTitle = 'Product List';
   errorMessage = '';
-  categories: ProductCategory[] = [];
+  //categories: ProductCategory[] = [];
+  selectedCategoryId = 1;
 
   //products$: Observable<Product[]> | undefined;
   products$ = this.productService.productsWithCategory$
@@ -25,7 +27,24 @@ export class ProductListComponent {
       })
     );
 
-  constructor(private productService: ProductService) { }
+  categories$ = this.productCategoryService.productCategories$
+      .pipe(
+        catchError(err => {
+          this.errorMessage = err;
+          return EMPTY;
+        })
+      )
+
+  productsSimpleFilter$ = this.productService.productsWithCategory$
+    .pipe(
+      map(products =>
+        products.filter(product =>
+          this.selectedCategoryId ? product.categoryId === this.selectedCategoryId : true //return all ıf there is no selecte category id
+        ))
+      )
+
+  constructor(private productService: ProductService,
+              private productCategoryService: ProductCategoryService) { }
 
   /*ngOnInit(): void {
     this.products$ = this.productService.getProducts()
@@ -42,6 +61,7 @@ export class ProductListComponent {
   }
 
   onSelected(categoryId: string): void {
-    console.log('Not yet implemented');
+    //console.log('Not yet implemented');
+    this.selectedCategoryId = +categoryId;
   }
 }

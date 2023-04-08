@@ -34,6 +34,14 @@ export class ProductService {
     )
   )
 
+  selectedProducts$ = this.productsWithCategory$
+      .pipe(
+        map(product =>
+          product.find(product => product.id === 5)
+        ),
+        tap(product => console.log('selecteProduct', product))
+      )
+
   /*products$ = this.http.get<Product[]>(this.productsUrl)
   .pipe(
     map(products =>

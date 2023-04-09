@@ -5,6 +5,7 @@ import { BehaviorSubject, catchError, combineLatest, map, merge, Observable, sca
 
 import { Product } from './product';
 import { ProductCategoryService } from '../product-categories/product-category.service';
+import { SupplierService } from '../suppliers/supplier.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class ProductService {
 
   products$ = this.http.get<Product[]>(this.productsUrl)
     .pipe(
-      tap(data => console.log('Products: ', JSON.stringify(data))),
+      //tap(data => console.log('Products: ', JSON.stringify(data))),
       catchError(this.handleError)
     );
 
@@ -82,7 +83,8 @@ addProduct(newProduct?: Product){
   );*/
 
   constructor(private http: HttpClient,
-    private productCategoryService: ProductCategoryService) { }
+    private productCategoryService: ProductCategoryService,
+    private supplierService: SupplierService) { }
 
   selectedProductChanged(selectedProductId: number): void {
     this.pruductSelectedSubject.next(selectedProductId);

@@ -16,7 +16,7 @@ export class ProductService {
 
   products$ = this.http.get<Product[]>(this.productsUrl)
     .pipe(
-      //tap(data => console.log('Products: ', JSON.stringify(data))),
+      tap(data => console.log('Products: ', JSON.stringify(data))),
       catchError(this.handleError)
     );
 
@@ -51,6 +51,15 @@ export class ProductService {
       shareReplay(1)
     );
 
+  selectedProductSuppliers$ = combineLatest([
+    this.selectedProducts$,
+    this.supplierService.suppliers$
+  ]).pipe(
+    map(([selectedProduct, suppliers]) =>
+      suppliers.filter(supplier => selectedProduct?.supplierIds?.includes(supplier.id))
+    )
+  );
+
   private productInsertedSubject = new Subject<Product>();
   productInsertedAction$ = this.productInsertedSubject.asObservable();
 
@@ -63,10 +72,10 @@ export class ProductService {
         (value instanceof Array) ? [...value] : [...acc, value], [] as Product[])
     )
 
-addProduct(newProduct?: Product){
-  newProduct = newProduct || this.fakeProduct();
-  this.productInsertedSubject.next(newProduct);
-}
+  addProduct(newProduct?: Product) {
+    newProduct = newProduct || this.fakeProduct();
+    this.productInsertedSubject.next(newProduct);
+  }
 
   /*products$ = this.http.get<Product[]>(this.productsUrl)
   .pipe(
